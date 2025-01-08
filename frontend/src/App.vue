@@ -1,85 +1,82 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div class="app">
+    <Navbar
+      v-if="showNavbar"
+      :logout="authStore.logout"
+    />
+    <router-view></router-view>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+<script setup lang="ts">
+import { computed, ref, onMounted } from 'vue';
+import Navbar from './views/Navbar.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from './stores/authStore';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+const authStore = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+const hiddenNavbarRoutes = ['/login', '/register'];
+const showNavbar = computed(() => !hiddenNavbarRoutes.includes(route.path));
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+// Флаг обработки токена
+const isProcessingToken = ref(false);
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+const handleAccessToken = async () => {
+  const accessToken = route.query.accessToken;
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
+  if (accessToken) {
+    console.log('Access token found in query:', accessToken);
 
-nav a:first-of-type {
-  border: 0;
-}
+    if (typeof accessToken === 'string') {
+      authStore.login(accessToken); // Сохраняем токен в хранилище
+      console.log('Access token saved to store.');
+    }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    // Убираем токен из URL
+    await router.replace({ path: route.path, query: {} });
+    console.log('Token removed from query.');
   }
+};
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+// onMounted(async () => {
+//   console.log('onMounted hook started.');
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+//   // Устанавливаем флаг обработки токена
+//   isProcessingToken.value = true;
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
+//   await handleAccessToken();
 
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+//   // Проверяем статус авторизации
+//   await authStore.checkAuth();
+
+//   console.log('Auth status after checkAuth:', authStore.isAuthenticated);
+
+//   // Сбрасываем флаг обработки токена
+//   isProcessingToken.value = false;
+
+//   // Редирект только после завершения всех проверок
+//   if (!authStore.isAuthenticated && !hiddenNavbarRoutes.includes(route.path) && !isProcessingToken.value) {
+//     console.log('User is not authenticated. Redirecting to login...');
+//     router.push('/login');
+//   } else {
+//     console.log('User is authenticated or in an allowed route.');
+//   }
+// });
+</script>
+
+
+<style>
+*{
+  margin: 0;
+  padding: 0;
+  font-family: Inter;
+}
+
+.app {
+  display: flex;
+  height: 900px;
 }
 </style>
