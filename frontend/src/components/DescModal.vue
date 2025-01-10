@@ -3,16 +3,43 @@
         <div class="profile" @click.stop>
             <div class="profile__content">
                 <span>Введите ваше новое описание</span>
-                <input type="text">
+                <input type="text" v-model="description">
                 <div class="name__change__btns">
-                    <button>Сохранить</button>
+                    <button @click="updateDesc">Сохранить</button>
                     <button @click="$emit('close-desc-modal')">Закрыть</button>
                 </div>
+                <span v-if="changeError" class="error__message">{{ changeError }}</span>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
+import axios from 'axios';
+import { ref } from 'vue';
+
+const description = ref('')
+const userId = localStorage.getItem('userId')
+const changeError = ref('')
+
+const updateDesc = async() => {
+    changeError.value = ''
+    try {
+        if (!description.value.trim()) {
+            console.error('Описание не может быть пустым');
+            changeError.value = 'Описание не может быть пустым'
+            return;
+        }
+
+        const response = await axios.patch(`http://localhost:3000/api/users/${userId}/description`,
+            { description: description.value }
+        )
+        description.value = ''
+        console.log('Описание успешно изменено')
+    } catch (error) {
+        console.error('Ошибка при обновлении описания:', error)
+        changeError.value = 'Ошибка в процессе обновления описания'
+    }
+}
 
 </script>
 <style scoped>
@@ -69,6 +96,12 @@
             border-radius: 10px;
             cursor: pointer;
         }
+    }
+    .error__message{
+        font-size: 10px;
+        height: 10px;
+        margin: -5px 0px 0px 0px;
+        color: red;
     }
 }    
 </style>

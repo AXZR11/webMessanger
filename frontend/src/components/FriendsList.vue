@@ -109,6 +109,12 @@ h1{
         border: 1px solid #E1E1E1;
         border-radius: 100px;
         margin: 10px 15px 10px 20px;
+        overflow: hidden;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     }
     .list__user__content{
         display: flex;
@@ -127,6 +133,9 @@ h1{
         padding: 13px 20px 10px 0px;
         img:first-child{
             margin-right: 15px;
+        }
+        img{
+            cursor: pointer;
         }
     }
 }

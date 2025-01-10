@@ -11,6 +11,8 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=232332321
       - DATABASE_NAME=chat
+    volumes:
+      - ./uploads:/usr/src/app/uploads
     networks:
       - app-network
   

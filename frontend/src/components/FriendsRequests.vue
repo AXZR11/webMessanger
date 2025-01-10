@@ -154,7 +154,7 @@ const filteredRequests = computed(() => {
     return [];
   }
 
-  console.log('Requests before filter:', requests.value); // Логируем заявки до фильтрации
+  console.log('Requests before filter:', requests.value);
   const filtered = requests.value.filter(request => {
     if (isIncoming.value) {
       return request.receiverId === userId && request.status === 'pending';
@@ -163,7 +163,7 @@ const filteredRequests = computed(() => {
     }
   });
 
-  console.log('Filtered requests:', filtered); // Логируем отфильтрованные заявки
+  console.log('Filtered requests:', filtered);
   return filtered;
 });
 

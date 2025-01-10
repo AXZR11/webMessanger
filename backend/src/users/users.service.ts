@@ -3,7 +3,9 @@ import { Repository } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FriendshipEntity } from "./friendships.entity";
-import { stringify } from "querystring";
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import { ChatsEntity } from "src/chats/chats.entity";
 
 @Injectable()
 export class UsersService{
@@ -11,7 +13,9 @@ export class UsersService{
         @InjectRepository(UsersEntity) 
         private readonly usersRepository: Repository<UsersEntity>,
         @InjectRepository(FriendshipEntity)
-        private readonly friendshipsRepository: Repository<FriendshipEntity>
+        private readonly friendshipsRepository: Repository<FriendshipEntity>,
+        @InjectRepository(ChatsEntity)
+        private readonly chatsRepository: Repository<ChatsEntity>
     ){}
 
     async findByOAuth(oauthId: string, provider: string) {
@@ -42,6 +46,19 @@ export class UsersService{
                 status: friendship.status
             }
         })
+    }
+
+    async getUserInfo(userId: string) {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+            select: ['avatarUrl', 'description', 'username'],
+        });
+
+        if (!user) {
+            throw new Error('Пользователь не найден');
+        }
+
+        return user
     }
 
     async sendFriendRequest(requesterId: string, receiverId: string) {
@@ -101,6 +118,21 @@ export class UsersService{
                 });
                 await this.friendshipsRepository.save(newReverseFriendship);
             }
+
+            const requester = await this.usersRepository.findOne({ where: { id: friendship.requesterId } });
+            const receiver = await this.usersRepository.findOne({ where: { id: friendship.receiverId } });
+
+            if (!requester || !receiver) {
+                throw new Error('Users not found for chat creation');
+            }
+
+            const chat = this.chatsRepository.create({
+                isGroup: false,
+                participants: [requester, receiver],
+            });
+
+            await this.chatsRepository.save(chat);
+
         } 
         else if (friendship.status === 'rejected') {
             await this.friendshipsRepository.remove(friendship);
@@ -159,5 +191,54 @@ export class UsersService{
         }
 
         return user
+    }
+
+    async editName(userId: string, newUsername: string): Promise<UsersEntity> {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId }
+        })
+
+        if (!user) {
+            throw new Error('User not found')
+        }
+
+        user.username = newUsername
+
+        return this.usersRepository.save(user)
+    }
+
+    async editDesc(userId: string, newDesc: string): Promise<UsersEntity> {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId }
+        })
+
+        if(!user) {
+            throw new Error('User not found')
+        }
+
+        user.description = newDesc
+
+        return this.usersRepository.save(user)
+    }
+
+    async updateAvatar(userId: string, avatarUrl: string) {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId }
+        });
+    
+        if (user.avatarUrl) {
+            const oldAvatarFilename = user.avatarUrl.split('/uploads/avatars/')[1];
+            const oldAvatarPath = path.resolve(__dirname, '../../uploads/avatars', oldAvatarFilename);
+    
+            try {
+                await fs.remove(oldAvatarPath);
+                console.log(`Старый аватар успешно удален: ${oldAvatarPath}`);
+            } catch (error) {
+                console.error('Ошибка при удалении старого аватара:', error);
+            }
+        }
+    
+        user.avatarUrl = avatarUrl;
+        await this.usersRepository.save(user);
     }
 }

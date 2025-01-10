@@ -1,16 +1,19 @@
 <template>
-    <div class="chat">
+    <div class="chat" v-if="chat">
         <div class="chat__header">
             <div class="chat__header__user">
                 <div class="chat__header__user__image">
-            
+                    <img :src="getChatImage(chat)" alt="">
                 </div>
                 <div class="chat__header__user__content">
-                    <span class="chat__header__user__title">Александр Жирнов</span>
+                    <span class="chat__header__user__title">{{ getChatName(chat) }}</span>
                     <span class="chat__header__user__online">Был в сети недавно</span>
                 </div>
-                <div class="chat__header__user__options">
+                <div class="chat__header__user__options" @click="toggleMenu">
                     <img src="../assets/options.svg" alt="">
+                    <div v-if="isMenuOpen" class="chat__header__menu">
+                        <button class="menu__item delete" @click="deleteChat(chat.id)">Удалить чат</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -54,14 +57,60 @@
                 <button class="chat__send__button">📩</button>
             </div>
         </div>
+    </div>
+    <div v-else class="chat__empty">
+        <p>Выберите чат, чтобы начать общение</p>
     </div>    
 </template>
 <script setup lang="ts">
+import axios from 'axios'
+import { ref } from 'vue'
 
+defineProps(['chat'])
+
+const userId = localStorage.getItem('userId')
+const isMenuOpen = ref(false)
+
+const toggleMenu = () => {
+    isMenuOpen.value = !isMenuOpen.value
+}
+
+const deleteChat = async (chatId: string) => {
+    try {
+        await axios.delete(`http://localhost:3000/api/chats/${chatId}`)
+        alert('Чат успешно удален')
+    } catch (error) {
+        console.error('Ошибка при удалении чата')
+        alert('Не удалось удалить чат')
+    }
+}
+
+const getChatName = (chat: any) => {
+    if (!chat) return ''
+    if (chat.isGroup) return chat.name || 'Групповой чат'
+    const otherParticipant = chat.participants?.find((p: any) => p.id !== userId)
+    return otherParticipant?.username || 'Без имени'
+}
+
+const getChatImage = (chat: any) => {
+    if (!chat) return '../assets/default-avatar.png'
+    const otherParticipant = chat.participants?.find((p: any) => p.id !== userId)
+    return otherParticipant?.avatarUrl || '../assets/default-avatar.png'
+}
 </script>
 <style scoped>
 .chat{
     width: 100%;
+}
+.chat__empty{
+    width: 100%;
+    display: flex;
+    p{
+        margin: auto;
+        background: #F3F9FF;
+        padding: 20px;
+        border-radius: 15px;
+    }
 }
 .chat__header{
     border-bottom: 1px solid #E1E1E1;
@@ -77,6 +126,12 @@
         border: 1px solid #E1E1E1;
         border-radius: 100px;
         margin: 20px 15px 20px 20px;
+        overflow: hidden;
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     }
     .chat__header__user__content{
         display: flex;
@@ -89,10 +144,48 @@
         }
     }
     .chat__header__user__options{
+        position: relative;
         margin-left: auto;
         padding: 13px 25px 10px 0px;
+        cursor: pointer;
         img{
             width: 25px;
+        }
+        .chat__header__menu{
+            position: absolute;
+            top: 68px;
+            right: 16px;
+            background-color: #fff;
+            border: 1px solid #E1E1E1;
+            border-bottom-right-radius: 15px;
+            border-bottom-left-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            padding: 10px;
+            .menu__item{
+                display: block;
+                width: 100%;
+                padding: 10px 20px;
+                text-align: left;
+                background: none;
+                border: none;
+                font-size: 14px;
+                cursor: pointer;
+                border-radius: 10px;
+                transition: background-color 0.1s, color 0.1s;
+                text-align: center;
+            }
+            .menu__item.delete{
+                color: #000;
+                background-color: #e4f1fe;
+            }
+            .menu__item.delete:hover{
+                color: white;
+                background-color: #74B5FF;
+            }
+            .menu__item:hover{
+                background-color: #f5f5f5;
+            }
         }
     }
 }

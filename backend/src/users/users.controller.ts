@@ -1,8 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, Request, UseGuards } from "@nestjs/common";
+import { Body, Req, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { UsersEntity } from "./users.entity";
 import { JwtAuthGuard } from "src/auth/jwt-auth-guard";
-
+import { FileInterceptor } from "@nestjs/platform-express";
+import { v4 as uuidv4 } from 'uuid';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 @Controller('api/users')
 export class UsersController {
@@ -13,9 +18,21 @@ export class UsersController {
         return await this.usersService.getAllUsers()
     }
 
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async getProfile(@Req() req: any) {
+        const userId = req.user.id
+        return this.usersService.getUserInfo(userId)
+    }
+
     @Get('requests')
     async getAllRequests(@Query('userId') userId: string) {
         return await this.usersService.getAllRequests(userId)
+    }
+
+    @Get(':id/info')
+    async getUserInfo(@Param('id') userId: string) {
+        return await this.usersService.getUserInfo(userId)
     }
 
     @Post('requests')
@@ -32,6 +49,22 @@ export class UsersController {
     ) {
         const userId = req.user.id
         return await this.usersService.updateFriendRequestStatus(id, body.status, userId)
+    }
+
+    @Patch(':id/username')
+    async updateUsername(
+        @Param('id') id: string,
+        @Body('username') newUsername: string
+    ): Promise<UsersEntity> {
+        return await this.usersService.editName(id, newUsername)
+    }
+
+    @Patch(':id/description')
+    async updateDesc(
+        @Param('id') id: string,
+        @Body('description') newDesc: string
+    ): Promise<UsersEntity> {
+        return await this.usersService.editDesc(id, newDesc)
     }
 
     @Get('list')
@@ -53,5 +86,36 @@ export class UsersController {
         const userId = req.user.id
         
         return await this.usersService.removeFriend(userId, friendId)
+    }
+
+    @Post(':id/upload-avatar')
+    @UseInterceptors(
+        FileInterceptor('avatar', {
+            storage: diskStorage({
+                destination: path.resolve(__dirname, '../../uploads/avatars'),
+                filename: (req, file, callback) => {
+                    const filename = `${uuidv4()}${extname(file.originalname)}`;
+                    callback(null, filename);
+                },
+            }),
+        }),
+    )
+    async uploadAvatar(@Param('id') userId: string, @UploadedFile() file: Express.Multer.File) {
+        const uploadPath = path.resolve(__dirname, '../../uploads/avatars');
+        console.log(`Путь для загрузки файлов: ${uploadPath}`);
+
+        try {
+            await fs.ensureDir(uploadPath);
+            console.log(`Директория ${uploadPath} успешно создана или уже существует`);
+
+            const avatarUrl = `http://localhost:3000/uploads/avatars/${file.filename}`;
+            console.log(`Загружен файл с именем: ${file.filename}`);
+            await this.usersService.updateAvatar(userId, avatarUrl);
+
+            return { avatarUrl };
+        } catch (error) {
+            console.error('Ошибка при создании папки или загрузке файла:', error);
+            throw new Error('Не удалось загрузить аватар');
+        }
     }
 }

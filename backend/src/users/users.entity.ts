@@ -17,6 +17,9 @@ export class UsersEntity {
     password: string
 
     @Column({ nullable: true })
+    description: string
+
+    @Column({ nullable: true })
     avatarUrl: string
 
     @Column({ nullable: true })

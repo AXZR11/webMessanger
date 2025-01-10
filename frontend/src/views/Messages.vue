@@ -1,14 +1,15 @@
 <template>
     <div class="messages">
-            <MessagesList/>
-            <MessagesChat/>
+            <MessagesList @chatSelected="selectedChat = $event"/>
+            <MessagesChat :chat="selectedChat"/>
     </div>
 </template>
 <script setup lang="ts">
 import MessagesChat from '@/components/MessagesChat.vue';
 import MessagesList from '@/components/MessagesList.vue';
+import { ref } from 'vue';
 
-
+const selectedChat = ref(null)
 </script>
 <style scoped>
 .messages{

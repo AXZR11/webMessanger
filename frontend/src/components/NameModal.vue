@@ -3,17 +3,44 @@
         <div class="profile" @click.stop>
             <div class="profile__content">
                 <span>Введите ваше новое имя</span>
-                <input type="text">
+                <input type="text" v-model="username">
                 <div class="name__change__btns">
-                    <button>Сохранить</button>
+                    <button @click="updateName">Сохранить</button>
                     <button @click="$emit('close-name-modal')">Закрыть</button>
                 </div>
+                <span v-if="changeError" class="error__message">{{ changeError }}</span>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
+import axios from 'axios';
+import { ref } from 'vue';
 
+
+const username = ref('')
+const userId = localStorage.getItem('userId')
+const changeError = ref('')
+
+const updateName = async() => {
+    changeError.value = ''
+    try {
+        if (!username.value.trim()) {
+            console.error('Имя не может быть пустым');
+            changeError.value = 'Имя не может быть пустым'
+            return;
+        }
+
+        const response = await axios.patch(`http://localhost:3000/api/users/${userId}/username`,{
+            username: username.value
+        })
+        username.value = ''
+        console.log('Имя успешно изменено')
+    } catch (error) {
+        console.error('Ошибка в изменении имени:', error)
+        changeError.value = 'Ошибка в процессе изменения имени'
+    }
+} 
 </script>
 <style scoped>
 .profile__overlay {
@@ -69,6 +96,12 @@
             border-radius: 10px;
             cursor: pointer;
         }
+    }
+    .error__message{
+        font-size: 10px;
+        height: 10px;
+        margin: -5px 0px 0px 0px;
+        color: red;
     }
 }    
 </style>
