@@ -5,6 +5,7 @@ services:
     container_name: backendChat
     ports:
      - "3000:3000"
+     - "3001:3001"
     environment:
       - DATABASE_HOST=database
       - DATABASE_PORT=5432

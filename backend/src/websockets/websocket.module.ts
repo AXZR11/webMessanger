@@ -1,9 +1,14 @@
-import { Module } from "@nestjs/common";
-import { WebSocketService } from "./websocket.service";
-import { WsGateway } from "./websocket.gateway";
+import { Module } from '@nestjs/common';
+import { WebsocketsService } from './websocket.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MessageEntity } from 'src/chats/messages.entity';
+import { ChatsService } from 'src/chats/chats.service';
+import { ChatsEntity } from 'src/chats/chats.entity';
+import { UsersEntity } from 'src/users/users.entity';
 
 @Module({
-    providers: [WebSocketService, WsGateway],
-    exports: [WebSocketService]
-})
-export class WsModule{}
+    imports: [TypeOrmModule.forFeature([MessageEntity, ChatsEntity, UsersEntity])],  // Регистрируем сущность
+    providers: [WebsocketsService, ChatsService],
+    exports: [WebsocketsService]
+  })
+export class WebsocketsModule {}

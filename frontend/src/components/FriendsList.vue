@@ -21,7 +21,10 @@
                 <span class="list__user__content__message">{{ friend.status}}</span>
             </div>
             <div class="list__user__date">
-                <img src="../assets/user-message.svg" alt="">
+                <!-- <img 
+                    src="../assets/user-message.svg"
+                    alt=""
+                > -->
                 <img 
                     src="../assets/user-delete.svg" 
                     alt=""
@@ -34,8 +37,9 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-
+const router = useRouter()
 const friends = ref<any[]>([])
 const searchQuery = ref('')
 

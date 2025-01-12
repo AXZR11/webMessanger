@@ -6,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './chats/chats.module';
 import { UsersEntity } from './users/users.entity';
-import { WsModule } from './websockets/websocket.module';
+import { WebsocketsModule } from './websockets/websocket.module';
 import { FriendshipEntity } from './users/friendships.entity';
 import { ChatsEntity } from './chats/chats.entity';
 import { MessageEntity } from './chats/messages.entity';
@@ -28,7 +28,8 @@ import { MessageEntity } from './chats/messages.entity';
     UsersModule,
     AuthModule,
     ChatsModule,
-    WsModule
+    WebsocketsModule,
+    WebsocketsModule
   ],
   controllers: [AppController],
   providers: [AppService],

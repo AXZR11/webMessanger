@@ -1,5 +1,6 @@
-import { Controller, Delete, Get, Param } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post } from "@nestjs/common";
 import { ChatsService } from "./chats.service";
+import { MessageEntity } from "./messages.entity";
 
 @Controller('api/chats')
 export class ChatsController {
@@ -8,6 +9,23 @@ export class ChatsController {
     @Get('user/:userId')
     async getUserChats(@Param('userId') userId: string) {
         return this.chatsService.getUserChats(userId);
+    }
+
+    @Get(':chatId/messages')
+    async getMessages(@Param('chatId') chatId: string) {
+        return this.chatsService.getMessages(chatId)
+    }
+
+    @Get(':userId/:friendId')
+    async getOrCreateChat(
+        @Param('userId') userId: string,
+        @Param('friendId') friendId: string
+    ) {
+        const chat = await this.chatsService.getOrCreateChat(userId, friendId)
+        if (!chat) {
+            throw new HttpException('Chat not found', HttpStatus.NOT_FOUND)
+        }
+        return chat
     }
 
     @Get()
@@ -30,6 +48,15 @@ export class ChatsController {
             createdAt: chat.createdAt,
             updatedAt: chat.updatedAt
         }));
+    }
+
+    @Post(':chatId')
+    async createMessage(
+        @Param('chatId') chatId: string,
+        @Body('senderId') senderId: string,
+        @Body('content') content: string,
+    ): Promise<MessageEntity> {
+        return this.chatsService.createMessage(chatId, senderId, content);
     }
 
     @Delete(':id')

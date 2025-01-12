@@ -4,6 +4,7 @@ import Friends from '@/views/Friends.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import { useAuthStore } from '@/stores/authStore'
+import MessagesList from '@/components/MessagesList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,12 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: Register,
+    },
+    {
+      path: '/:friendId',
+      name: 'chat',
+      component: MessagesList,
+      props: true,
     },
   ],
 })

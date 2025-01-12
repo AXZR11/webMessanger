@@ -4,6 +4,9 @@
             <input type="text" class="list__search__input" placeholder="Поиск" v-model="searchQuery">
         </div>
         <h1>Сообщения</h1>
+        <div v-if="filteredChats.length === 0" class="no__chats">
+            <p>Список чатов пуст</p>
+        </div>
         <div 
             v-for="chat in filteredChats"
             :key="chat.id" 
@@ -32,6 +35,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 interface Participant {
     id: string
@@ -114,6 +118,10 @@ onMounted(() => {
 }
 
 h1{
+    padding: 0 20px 10px 20px;
+}
+
+.no__chats {
     padding: 0 20px 10px 20px;
 }
 

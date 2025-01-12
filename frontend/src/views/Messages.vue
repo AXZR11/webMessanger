@@ -9,7 +9,15 @@ import MessagesChat from '@/components/MessagesChat.vue';
 import MessagesList from '@/components/MessagesList.vue';
 import { ref } from 'vue';
 
-const selectedChat = ref(null)
+interface Chat {
+  id: string;
+  name: string;
+  isGroup: boolean;
+  participants: { id: string; username: string; avatarUrl: string }[];
+  messages: { id: string; senderId: string; content: string; createdAt: string }[];
+}
+
+const selectedChat = ref<Chat | null>(null);
 </script>
 <style scoped>
 .messages{
