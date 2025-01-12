@@ -60,7 +60,7 @@ const selectedChatId = ref(null)
 
 const fetchChats = async () => {
     try {
-        const response = await axios.get(`http://localhost:3000/api/chats/user/${userId}`)
+        const response = await axios.get(`https://backzhirnow.ru.tuna.am/api/chats/user/${userId}`)
         chats.value = response.data
     } catch (error) {
         console.error('Ошибка при получении чатов:', error)

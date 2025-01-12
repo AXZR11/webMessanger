@@ -66,7 +66,7 @@ const userInfo = ref({
 
 const fetchUserInfo = async() => {
     try {
-        const response = await axios.get(`http://localhost:3000/api/users/${userId}/info`)
+        const response = await axios.get(`https://backzhirnow.ru.tuna.am/api/users/${userId}/info`)
 
         const { description, avatarUrl, username } = response.data
         userInfo.value = { description, avatarUrl, username }
@@ -82,7 +82,7 @@ const onFileChange = async (e: Event) => {
         formData.append('avatar', fileInput.files[0])
 
         try {
-            const response = await axios.post(`http://localhost:3000/api/users/${userId}/upload-avatar`, formData, {
+            const response = await axios.post(`https://backzhirnow.ru.tuna.am/api/users/${userId}/upload-avatar`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

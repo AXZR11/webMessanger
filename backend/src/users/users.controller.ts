@@ -1,4 +1,4 @@
-import { Body, Req, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Req, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, Request, UploadedFile, UseGuards, UseInterceptors, ConflictException, NotFoundException } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { UsersEntity } from "./users.entity";
 import { JwtAuthGuard } from "src/auth/jwt-auth-guard";
@@ -55,9 +55,19 @@ export class UsersController {
     async updateUsername(
         @Param('id') id: string,
         @Body('username') newUsername: string
-    ): Promise<UsersEntity> {
-        return await this.usersService.editName(id, newUsername)
-    }
+      ): Promise<UsersEntity> {
+        try {
+          return await this.usersService.editName(id, newUsername);
+        } catch (error) {
+          if (error.message === 'User not found') {
+            throw new NotFoundException('User not found');
+          }
+          if (error.message === 'Username is already taken') {
+            throw new ConflictException('Username is already taken');
+          }
+          throw error;
+        }
+      }
 
     @Patch(':id/description')
     async updateDesc(
@@ -108,7 +118,7 @@ export class UsersController {
             await fs.ensureDir(uploadPath);
             console.log(`Директория ${uploadPath} успешно создана или уже существует`);
 
-            const avatarUrl = `http://localhost:3000/uploads/avatars/${file.filename}`;
+            const avatarUrl = `https://backzhirnow.ru.tuna.am/uploads/avatars/${file.filename}`;
             console.log(`Загружен файл с именем: ${file.filename}`);
             await this.usersService.updateAvatar(userId, avatarUrl);
 

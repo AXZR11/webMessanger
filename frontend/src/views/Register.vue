@@ -35,7 +35,7 @@ const handleRegister = async() => {
         return;
     }
     try {
-        const response = await axios.post('http://localhost:3000/api/auth/register', {
+        const response = await axios.post('https://backzhirnow.ru.tuna.am/api/auth/register', {
             username: username.value,
             password: password.value
         })

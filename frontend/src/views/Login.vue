@@ -36,7 +36,7 @@ const loginError = ref('')
 const handleLogin = async () => {
     loginError.value = ''
     try {
-        const response = await axios.post('http://localhost:3000/api/auth/login', {
+        const response = await axios.post('https://backzhirnow.ru.tuna.am/api/auth/login', {
             username: username.value,
             password: password.value
         })
@@ -52,11 +52,11 @@ const handleLogin = async () => {
 }
 
 const redirectToVk = () => {
-    window.location.href = 'http://localhost:3000/api/auth/vk'
+    window.location.href = 'https://backzhirnow.ru.tuna.am/api/auth/vk'
 }
 
 const redirectToYandex = () => {
-    window.location.href = 'http://localhost:3000/api/auth/yandex'
+    window.location.href = 'https://backzhirnow.ru.tuna.am/api/auth/yandex'
 }
 
 const handleYandexRedirect = async () => {

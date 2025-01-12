@@ -76,7 +76,7 @@ const fetchRequests = async () => {
             return
         }
 
-        const response = await axios.get('http://localhost:3000/api/users/requests', {
+        const response = await axios.get('https://backzhirnow.ru.tuna.am/api/users/requests', {
             params: { userId }
         })
         requests.value = response.data
@@ -90,7 +90,7 @@ const sendFriendRequest = async () => {
         return
     }
     try {
-        const userResponse = await axios.get(`http://localhost:3000/api/users/username/${nickname.value}`)
+        const userResponse = await axios.get(`https://backzhirnow.ru.tuna.am/api/users/username/${nickname.value}`)
         const receiverId = userResponse.data.id
 
         const requesterId = localStorage.getItem('userId')
@@ -100,7 +100,7 @@ const sendFriendRequest = async () => {
             return;
         }
 
-        await axios.post('http://localhost:3000/api/users/requests', {
+        await axios.post('https://backzhirnow.ru.tuna.am/api/users/requests', {
             requesterId,
             receiverId,
         })
@@ -116,7 +116,7 @@ const acceptRequest = async (requestId: string) => {
     try {
         const token = localStorage.getItem('accessToken')
 
-        await axios.put(`http://localhost:3000/api/users/requests/${requestId}`, 
+        await axios.put(`https://backzhirnow.ru.tuna.am/api/users/requests/${requestId}`, 
         { status: 'accepted'},
         { headers: {
             Authorization: `Bearer ${token}`
@@ -134,7 +134,7 @@ const rejectRequest = async (requestId: string) => {
     try {
         const token = localStorage.getItem('accessToken')
 
-        await axios.put(`http://localhost:3000/api/users/requests/${requestId}`, 
+        await axios.put(`https://backzhirnow.ru.tuna.am/api/users/requests/${requestId}`, 
         { status: 'rejected'},
         { headers: {
             Authorization: `Bearer ${token}`

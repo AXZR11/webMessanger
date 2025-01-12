@@ -16,7 +16,6 @@ import {
   
     constructor(private readonly messageService: ChatsService) {}
   
-    // Инициализация сервера
     afterInit(server: Server) {
       console.log('WebSocket Server Initialized');
     }
@@ -35,17 +34,15 @@ import {
         }
 
         try {
-            // Создаем сообщение в базе данных
             const savedMessage: MessageEntity = await this.messageService.createMessage(chatId, senderId, content);
 
-            // Отправляем сообщение всем пользователям в комнате
             this.server.to(chatId).emit('receiveMessage', savedMessage);
 
             console.log('Sending response to client: success', savedMessage);
 
             client.emit('sendMessageResponse', { 
                 status: 'success', 
-                message: savedMessage  // Отправляем созданное сообщение
+                message: savedMessage
             });
 
             console.log('Message sent and saved:', savedMessage);
@@ -55,7 +52,6 @@ import {
         }
     }
   
-    // Обработчик присоединения к чату
     @SubscribeMessage('join')
     handleJoinChat(@MessageBody() chatId: string, @ConnectedSocket() socket: Socket): void {
       if (!chatId) {
@@ -64,7 +60,7 @@ import {
       }
   
       try {
-        socket.join(chatId); // Пользователь присоединяется к комнате чата
+        socket.join(chatId);
         console.log(`Client ${socket.id} joined chat room: ${chatId}`);
       } catch (error) {
         console.error('Error joining chat:', error);
@@ -72,11 +68,10 @@ import {
       }
     }
   
-    // Обработчик отключения клиента
     handleDisconnect(client: Socket) {
       console.log(`Client disconnected: ${client.id}`);
   
-      const rooms = Array.from(client.rooms); // Все комнаты, в которых состоит клиент
+      const rooms = Array.from(client.rooms);
       rooms.forEach((room) => {
         if (room !== client.id) {
           client.leave(room);

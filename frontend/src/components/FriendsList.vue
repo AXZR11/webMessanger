@@ -52,7 +52,7 @@ const fetchFriends = async () => {
             return
         }
 
-        const response = await axios.get('http://localhost:3000/api/users/list', { 
+        const response = await axios.get('https://backzhirnow.ru.tuna.am/api/users/list', { 
             params: { userId } 
         })
         friends.value = response.data
@@ -69,7 +69,7 @@ const removeFriend = async (friendId: string) => {
             return
         }
 
-        await axios.delete(`http://localhost:3000/api/users/remove/${friendId}`, {
+        await axios.delete(`https://backzhirnow.ru.tuna.am/api/users/remove/${friendId}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

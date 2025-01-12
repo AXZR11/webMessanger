@@ -30,13 +30,14 @@
 <script setup lang="ts">
 import ProfileModal from '@/components/ProfileModal.vue';
 import axios from 'axios';
+import defaultAvatar from '@/assets/default-avatar.png';
 import { onMounted, ref } from 'vue';
 import { defineProps } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter()
 const route = useRoute();
-const avatarUrl = ref<string>('../assets/default-avatar.png')
+const avatarUrl = ref<string>(defaultAvatar)
 
 const isActive = (path: string) => {
   return route.path === path;
@@ -63,12 +64,13 @@ const closeProfileModal = () => {
 
 onMounted(async () => {
     try {
-        const response = await axios.get('http://localhost:3000/api/users/me', {
+        const response = await axios.get('https://backzhirnow.ru.tuna.am/api/users/me', {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
-        avatarUrl.value = response.data.avatarUrl || '../assets/default-avatar.png'
+        avatarUrl.value = response.data.avatarUrl || defaultAvatar
     } catch (error) {
         console.error('Ошибка загрузки аватара:', error);
+        avatarUrl.value = defaultAvatar;
     }
 })
 </script>

@@ -30,10 +30,11 @@ const updateDesc = async() => {
             return;
         }
 
-        const response = await axios.patch(`http://localhost:3000/api/users/${userId}/description`,
+        const response = await axios.patch(`https://backzhirnow.ru.tuna.am/api/users/${userId}/description`,
             { description: description.value }
         )
         description.value = ''
+        $emit('update-description', description.value)
         console.log('Описание успешно изменено')
     } catch (error) {
         console.error('Ошибка при обновлении описания:', error)

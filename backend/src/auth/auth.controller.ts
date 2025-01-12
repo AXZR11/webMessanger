@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Req, Query, Res, UseGuards } from "@nestjs
 import { AuthService } from "./auth.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Response, query } from "express";
+import axios from "axios";
 
 @Controller('api/auth')
 export class AuthController {
@@ -39,6 +40,17 @@ export class AuthController {
     @Get('vk/callback')
     @UseGuards(AuthGuard('vk'))
     async vkCallback(@Req() req, @Res() res: Response) {
+        try {
+            const user = req.user;
+            console.log('VK User:', user);
+
+            const result = await this.authService.oauthLogin('vk', user.accessToken, null);
+
+            res.redirect(`http://localhost:8080/login?accessToken=${result.accessToken}&userId=${result.userId}`);
+        } catch (error) {
+            console.error('VK Callback Error:', error.message);
+            res.status(500).json({ message: 'Ошибка авторизации через VK', error: error.message });
+        }
     }
 
     @Get('yandex')
@@ -47,10 +59,20 @@ export class AuthController {
 
     }
 
+    @Get('vk-config')
+    async getVkConfig(@Query('app_id') appId: string, @Res() res: Response) {
+        try {
+            const response = await axios.get(`https://id.vk.com/vkid_sdk_get_config?app_id=${appId}&v=5.207`);
+            res.send(response.data);
+        } catch (error) {
+            res.status(error.response?.status || 500).send(error.response?.data || 'Error fetching VK config');
+        }
+    }
+
     @Get('yandex/redirect')
     @UseGuards(AuthGuard('yandex'))
     async yandexRedirect(@Req() req, @Res() res: Response) {
-        console.log('req.user:', req.user); // Логируем данные из req.user
+        console.log('req.user:', req.user);
 
         try {
             const accessToken = req.user?.accessToken;
@@ -63,13 +85,11 @@ export class AuthController {
             console.log('Yandex Redirect - Access Token:', accessToken);
             console.log('Yandex Redirect - Refresh Token:', refreshToken);
 
-            // Вызываем authService для обработки токенов
             const result = await this.authService.oauthLogin('yandex', accessToken, refreshToken);
 
             console.log('Result from oauthLogin:', result);
 
-            // Редирект с accessToken в качестве параметра
-            res.redirect(`http://localhost:8080/login?accessToken=${result.accessToken}&userId=${result.userId}`);
+            res.redirect(`https://zhirnow.ru.tuna.am/login?accessToken=${result.accessToken}&userId=${result.userId}`);
         } catch (error) {
             console.error('Error during OAuth login:', error);
             res.status(500).json({ message: 'Error during OAuth login', error: error.message });

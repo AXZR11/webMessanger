@@ -73,10 +73,9 @@ export class AuthService {
         } catch (error) {
             console.error('Error verifying token:', error);
             
-            // Если токен истек, используем refresh token для получения нового access token
             if (error.message.includes('expired_token') && refreshToken) {
                 console.log('Attempting to refresh token...');
-                const newAccessToken = await this.refreshYandexToken(refreshToken); // Поменяйте на функцию для обновления токена Yandex
+                const newAccessToken = await this.refreshYandexToken(refreshToken);
                 return this.oauthLogin(oauthProvider, newAccessToken, refreshToken);
             }
             

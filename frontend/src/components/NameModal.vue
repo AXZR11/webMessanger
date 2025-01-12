@@ -31,7 +31,7 @@ const updateName = async() => {
             return;
         }
 
-        const response = await axios.patch(`http://localhost:3000/api/users/${userId}/username`,{
+        const response = await axios.patch(`https://backzhirnow.ru.tuna.am/api/users/${userId}/username`,{
             username: username.value
         })
         username.value = ''

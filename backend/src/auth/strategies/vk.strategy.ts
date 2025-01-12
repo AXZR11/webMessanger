@@ -1,18 +1,19 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { Strategy } from "passport-vkontakte";
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-vkontakte';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class VkStrategy extends PassportStrategy(Strategy, 'vk') {
-    constructor() {
-        super({
-            clientID: 'oB3oRmMN5aWQDxcLvegV',
-            clientSecret: 'dff846d4dff846d4dff846d422dcdf690dddff8dff846d4b884c6dc96230ae9d916c509',
-            callbackURL: 'https://nfhdn1-2a12-5940-1e45--2.ru.tuna.am/api/auth/vk/callback',
-        })
-    }
+  constructor() {
+    super({
+      clientID: '013b61f0013b61f0013b61f094021c3c420013b013b61f066b88466ba66d696129044fe',
+      clientSecret: 'cadaQWrIYUk0J0SwT66K',
+      callbackURL: 'https://wcuqeq-178-65-23-254.ru.tuna.am/api/auth/vk/callback',
+    });
+  }
 
-    async validate(accessToken: string, refreshToken: string, profile: any) {
-        return { oauthId: profile.id, username: profile.displayName, provider: 'vk' }
-    }
+  async validate(accessToken: string, refreshToken: string, profile: any) {
+    console.log('VK Profile:', profile);
+    return profile;
+  }
 }

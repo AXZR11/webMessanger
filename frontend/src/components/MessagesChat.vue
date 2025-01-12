@@ -91,7 +91,7 @@ const toggleMenu = () => {
 const fetchMessages = async () => {
   if (props.chat) {
     try {
-      const response = await axios.get(`http://localhost:3000/api/chats/${props.chat.id}/messages`);
+      const response = await axios.get(`https://backzhirnow.ru.tuna.am/api/chats/${props.chat.id}/messages`);
       messages.value = response.data;
 
       nextTick(() => {
@@ -105,7 +105,7 @@ const fetchMessages = async () => {
 
 const deleteChat = async (chatId: string) => {
     try {
-        await axios.delete(`http://localhost:3000/api/chats/${chatId}`)
+        await axios.delete(`https://backzhirnow.ru.tuna.am/api/chats/${chatId}`)
         alert('Чат успешно удален')
     } catch (error) {
         console.error('Ошибка при удалении чата')
@@ -141,7 +141,7 @@ const connectToSocket = (chatId: string) => {
     socket.value.disconnect();
   }
 
-  socket.value = io('http://localhost:3001');
+  socket.value = io('https://wszhirnow.ru.tuna.am');
   socket.value.on('connect', () => {
     console.log('Socket connected:', socket.value.id);
 
@@ -173,11 +173,13 @@ const getChatImage = (chat: Chat) => {
 
 const getChatName = (chat: Chat) => {
   if (chat.isGroup) {
-    return chat.name
+    return chat.name;
   } else {
-    return chat.participants[0]?.username || 'Без имени'
+    const otherParticipant = chat.participants.find(p => p.id !== userId);
+    return otherParticipant?.username || 'Без имени';
   }
-}
+};
+
 
 const getMessageAvatar = (senderId: string) => {
   const sender = props.chat?.participants.find(p => p.id === senderId)
@@ -199,7 +201,7 @@ const formatTime = (time: string) => {
 onMounted(() => {
     if (userId) {
         console.log('Connecting to socket...')
-        socket.value = io('http://localhost:3001')
+        socket.value = io('https://wszhirnow.ru.tuna.am')
         socket.value.on('connect', () => {
             console.log('Socket connected:', socket.value.id)
         })

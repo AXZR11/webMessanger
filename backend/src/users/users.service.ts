@@ -194,18 +194,21 @@ export class UsersService{
     }
 
     async editName(userId: string, newUsername: string): Promise<UsersEntity> {
-        const user = await this.usersRepository.findOne({
-            where: { id: userId }
-        })
-
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+    
         if (!user) {
-            throw new Error('User not found')
+          throw new Error('User not found');
         }
-
-        user.username = newUsername
-
-        return this.usersRepository.save(user)
-    }
+    
+        const existingUser = await this.usersRepository.findOne({ where: { username: newUsername } });
+        if (existingUser) {
+          throw new Error('Username is already taken');
+        }
+    
+        user.username = newUsername;
+    
+        return await this.usersRepository.save(user);
+      }
 
     async editDesc(userId: string, newDesc: string): Promise<UsersEntity> {
         const user = await this.usersRepository.findOne({

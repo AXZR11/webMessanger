@@ -7,7 +7,7 @@ import { ChatsEntity } from 'src/chats/chats.entity';
 import { UsersEntity } from 'src/users/users.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([MessageEntity, ChatsEntity, UsersEntity])],  // Регистрируем сущность
+    imports: [TypeOrmModule.forFeature([MessageEntity, ChatsEntity, UsersEntity])],
     providers: [WebsocketsService, ChatsService],
     exports: [WebsocketsService]
   })

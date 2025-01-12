@@ -8,10 +8,9 @@ export async function verifyYandexToken(token: string) {
             },
         });
 
-        // Логируем успешный ответ с данными пользователя
         console.log('Yandex token verified:', response.data);
 
-        return response.data; // возвращаем информацию о пользователе
+        return response.data;
     } catch (error) {
         console.error('Error verifying Yandex token:', error.response?.data || error.message);
         throw new Error('Failed to verify Yandex token');
