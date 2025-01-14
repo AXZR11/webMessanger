@@ -17,7 +17,7 @@
 import axios from 'axios';
 import { ref } from 'vue';
 
-
+const emit = defineEmits(['username-updated', 'close-name-modal']);
 const username = ref('')
 const userId = localStorage.getItem('userId')
 const changeError = ref('')
@@ -36,6 +36,11 @@ const updateName = async() => {
         })
         username.value = ''
         console.log('Имя успешно изменено')
+
+        const updatedName = response.data.username;
+        emit('username-updated', updatedName);
+
+        emit('close-name-modal');
     } catch (error) {
         console.error('Ошибка в изменении имени:', error)
         changeError.value = 'Ошибка в процессе изменения имени'

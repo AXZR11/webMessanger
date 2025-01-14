@@ -18,7 +18,7 @@
             </div>
             <div class="list__user__content">
                 <span class="list__user__content__title">{{ friend.username }}</span>
-                <span class="list__user__content__message">{{ friend.status}}</span>
+                <span class="list__user__content__message">Был в сети недавно</span>
             </div>
             <div class="list__user__date">
                 <!-- <img 

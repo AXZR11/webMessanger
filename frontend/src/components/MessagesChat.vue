@@ -1,7 +1,7 @@
 <template>
     <div class="chat" v-if="chat">
         <div class="chat__header">
-            <div class="chat__header__user">
+            <div class="chat__header__user" @click="openUserModal">
                 <div class="chat__header__user__image">
                     <img :src="getChatImage(chat)" alt="">
                 </div>
@@ -9,9 +9,9 @@
                     <span class="chat__header__user__title">{{ getChatName(chat) }}</span>
                     <span class="chat__header__user__online">Был в сети недавно</span>
                 </div>
-                <div class="chat__header__user__options" @click="toggleMenu">
+                <div class="chat__header__user__options" @click.stop="toggleMenu">
                     <img src="../assets/options.svg" alt="">
-                    <div v-show="isMenuOpen" class="chat__header__menu">
+                    <div v-show="isMenuOpen" @click.stop class="chat__header__menu">
                         <button class="menu__item delete" @click="deleteChat(chat.id)">Удалить чат</button>
                     </div>
                 </div>
@@ -44,13 +44,19 @@
     </div>
     <div v-else class="chat__empty">
         <p>Выберите чат, чтобы начать общение</p>
-    </div>    
+    </div> 
+    <UserInfoModal 
+      v-if="isUserModalVisible" 
+      @close-user-modal="closeUserModal"
+      :user="getOtherParticipant(chat)" 
+    />   
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted, type PropType, onBeforeMount, onBeforeUnmount, nextTick } from 'vue';
 import axios from 'axios';
 import { defineProps } from 'vue';
 import { io } from 'socket.io-client';
+import UserInfoModal from './UserInfoModal.vue';
 
 interface Chat {
   id: string;
@@ -77,6 +83,15 @@ const userId = localStorage.getItem('userId')
 const socket = ref<any>(null)
 const selectedChat = ref<Chat | null>(null);
 const messagesContainer = ref<HTMLElement | null>(null)
+const isUserModalVisible = ref(false)
+
+const openUserModal = () => {
+  isUserModalVisible.value = true
+}
+
+const closeUserModal = () => {
+  isUserModalVisible.value = false
+}
 
 const scrollToBottom = () => {
     if (messagesContainer.value) {
@@ -86,6 +101,13 @@ const scrollToBottom = () => {
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
+};
+
+const getOtherParticipant = (chat: Chat | null) => {
+    if (chat && !chat.isGroup) {
+        return chat.participants.find(participant => participant.id !== userId) || null;
+    }
+    return null;
 };
 
 const fetchMessages = async () => {
@@ -165,11 +187,12 @@ const connectToSocket = (chatId: string) => {
 
 const getChatImage = (chat: Chat) => {
   if (chat.isGroup) {
-    return '/path/to/group-avatar.png'
+    return '/path/to/group-avatar.png';
   } else {
-    return chat.participants[0]?.avatarUrl || '/path/to/default-avatar.png'
+    const otherParticipant = chat.participants.find(p => p.id !== userId);
+    return otherParticipant?.avatarUrl || '/path/to/default-avatar.png';
   }
-}
+};
 
 const getChatName = (chat: Chat) => {
   if (chat.isGroup) {
@@ -267,6 +290,7 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     .chat__header__user__image{
         width: 52px;
         height: 52px;

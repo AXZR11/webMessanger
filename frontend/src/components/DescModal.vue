@@ -20,6 +20,7 @@ import { ref } from 'vue';
 const description = ref('')
 const userId = localStorage.getItem('userId')
 const changeError = ref('')
+const emit = defineEmits(['description-updated', 'close-desc-modal']);
 
 const updateDesc = async() => {
     changeError.value = ''
@@ -34,8 +35,12 @@ const updateDesc = async() => {
             { description: description.value }
         )
         description.value = ''
-        $emit('update-description', description.value)
         console.log('Описание успешно изменено')
+
+        const updatedDescription = response.data.description;
+        emit('description-updated', updatedDescription);
+
+        emit('close-desc-modal');
     } catch (error) {
         console.error('Ошибка при обновлении описания:', error)
         changeError.value = 'Ошибка в процессе обновления описания'

@@ -1,72 +1,42 @@
 <template>
-    <div class="profile__overlay" @click="$emit('close')">
+    <div class="profile__overlay" @click="$emit('close-user-modal')">
         <div class="profile" @click.stop>
-            <button class="profile__close" @click="$emit('close')">
+            <button class="profile__close" @click="$emit('close-user-modal')">
                 <img src="../assets/user-cancel.svg" alt="">
             </button>
             <div class="profile__content">
                 <span class="profile__content__title">Информация о вас</span>
                 <div class="profile__content__image">
-                    <img :src="userInfo.avatarUrl || '../assets/default-avatar.png'" alt="Avatar">
-                    <div class="profile__content__image__overlay">
-                        <input type="file" @change="onFileChange" />
-                    </div>
+                    <img :src="user?.avatarUrl || '../assets/default-avatar.png'" alt="Avatar">
                 </div>
                 <div class="profile__content__name">
                     <span>Имя</span>
-                    <span @click="openNameModal">{{ userInfo.username }}</span>
+                    <span>{{ user?.username || 'Неизвестный пользователь' }}</span>
                 </div>
                 <div class="profile__content__desc">
                     <span>Описание</span>
-                    <span v-if="!userInfo.description || userInfo.description.trim() === ''" @click="openDescModal">Напишите немного о себе</span>
-                    <span v-else @click="openDescModal">{{ userInfo.description }}</span>
+                    <span v-if="!user?.description || user.description.trim() === ''">Пользователь не указал описание</span>
+                    <span v-else>{{ userInfo.description }}</span>
                 </div>
             </div>
         </div>
     </div>
-    <NameModal
-        v-if="isNameModalVisible"
-        @close-name-modal="closeNameModal"
-        @username-updated="updateUsername"
-    />
-    <DescModal
-        v-if="isDescModalVisible"
-        @close-desc-modal="closeDescModal"
-        @description-updated="updateDescription"
-    />
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import NameModal from './NameModal.vue';
-import DescModal from './DescModal.vue';
 import axios from 'axios';
 
 const userId = localStorage.getItem('userId')
 const isNameModalVisible = ref(false)
 const isDescModalVisible = ref(false)
 
-const openNameModal = () => {
-    isNameModalVisible.value = true
-}
-
-const closeNameModal = () => {
-    isNameModalVisible.value = false
-}
-
-const openDescModal = () => {
-    isDescModalVisible.value = true
-}
-const closeDescModal = () => {
-    isDescModalVisible.value = false
-}
-
-const updateDescription = (newDescription: string) => {
-    userInfo.value.description = newDescription;
-};
-
-const updateUsername = (newUsername: string) => {
-    userInfo.value.username = newUsername;
-};
+const props = defineProps<{
+    user: {
+        username: string;
+        description?: string;
+        avatarUrl?: string;
+    } | null;
+}>();
 
 const userInfo = ref({
     username: '',
@@ -82,27 +52,6 @@ const fetchUserInfo = async() => {
         userInfo.value = { description, avatarUrl, username }
     } catch (error) {
         console.error('Ошибка при получении информации о пользователе:', error)
-    }
-}
-
-const onFileChange = async (e: Event) => {
-    const fileInput = e.target as HTMLInputElement
-    if (fileInput?.files?.length) {
-        const formData = new FormData()
-        formData.append('avatar', fileInput.files[0])
-
-        try {
-            const response = await axios.post(`https://backzhirnow.ru.tuna.am/api/users/${userId}/upload-avatar`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-            
-            userInfo.value.avatarUrl = response.data.avatarUrl
-            fetchUserInfo()
-        } catch (error) {
-            console.error('Ошибка при загрузке аватара:', error)
-        }
     }
 }
 
@@ -208,10 +157,6 @@ onMounted(() => {
         font-size: 20px;
         margin-bottom: 5px;
         color: #000;
-    }
-    .profile__content__name span:last-child,
-    .profile__content__desc span:last-child{
-        cursor: pointer;
     }
 }
 </style>
